@@ -1,0 +1,59 @@
+#!/bin/bash
+# Baixar a versão mais recente do instalador do Anaconda
+# Aqui estamos baixando a versão de junho de 2024 do Anaconda para Linux (64-bit)
+wget https://repo.anaconda.com/archive/Anaconda3-2024.06-1-Linux-x86_64.sh
+
+# Alterar permissões do instalador para torná-lo executável
+sudo chmod u+x Anaconda3-2024.06-1-Linux-x86_64.sh
+
+# Executar o script de instalação do Anaconda
+# Certifique-se de seguir as instruções interativas que aparecerão na tela
+./Anaconda3-2024.06-1-Linux-x86_64.sh
+
+# Ativar o Anaconda para o terminal atual
+# Isso garante que você possa usar o Anaconda imediatamente após a instalação
+source ~/anaconda3/bin/activate
+
+# Validar a instalação do conda
+# Isso deve exibir informações sobre o conda, confirmando que foi instalado corretamente
+conda --version
+
+# Criar um novo ambiente chamado 'osgeo' com Python 3.10
+# Este ambiente será utilizado para trabalhar com bibliotecas geoespaciais e científicas
+conda create -n osgeo python=3.10 -y
+
+# Ativar o ambiente 'osgeo'
+conda activate osgeo
+
+# Instalar uma lista extensa de pacotes geoespaciais e científicos via conda-forge
+# Esses pacotes cobrem diversas funcionalidades, como processamento de dados raster, machine learning, otimização, entre outros.
+conda install -c conda-forge \
+  rsgislib gdal libgdal-arrow-parquet libgdal-fits libgdal-grib libgdal-hdf4 \
+  libgdal-hdf5 libgdal-jp2openjpeg libgdal-pg libgdal-kea libgdal-netcdf proj-data \
+  geos gsl kealib xerces-c muparser boost-cpp rios scikit-learn scikit-image \
+  imbalanced-learn scikit-plot scikit-fuzzy bayesian-optimization optuna matplotlib \
+  pandas geopandas statsmodels h5py scipy rasterio shapely networkx sqlalchemy \
+  pycurl xgboost catboost lightgbm numba pip sphinx elevation rtree tqdm jinja2 \
+  keras parallel bokeh pygal jupyterlab psutil pysal libpysal esda pyyaml netcdf4 \
+  xarray rasterstats fiona plotly python-kaleido pyod psycopg2 contextily cvxopt \
+  feather-format openpyxl SALib xlsxwriter black jupyterlab_code_formatter ruff \
+  flake8 pylint isort autopep8 pytest pytest-html coverage pytest-cov requests \
+  imageio Pillow pyyaml exiftool scikit-gstat tuiview -y
+
+# Atualizar todos os pacotes para garantir que estamos usando as versões mais recentes
+conda update -c conda-forge --all -y
+
+# Limpar o cache do conda para liberar espaço em disco
+# Isso remove pacotes baixados que não são mais necessários
+conda clean --all -y
+
+# Confirmar que o ambiente foi configurado corretamente
+# Verificamos se as principais bibliotecas estão instaladas e funcionando
+python -c "import geopandas, rasterio, gdal, numpy; print('Ambiente configurado com sucesso!')"
+
+# Instruções para o usuário:
+# - Para ativar o ambiente 'osgeo' no futuro, use o comando: 'conda activate osgeo'
+# - Para desativar o ambiente, use: 'conda deactivate'
+
+# Fim do script
+echo "Instalação e configuração concluídas com sucesso!"
