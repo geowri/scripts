@@ -18,12 +18,12 @@ source ~/anaconda3/bin/activate
 # Isso deve exibir informações sobre o conda, confirmando que foi instalado corretamente
 conda --version
 
-# Criar um novo ambiente chamado 'osgeo' com Python 3.10
+# Criar um novo ambiente chamado 'osgeo' com Python 3.12
 # Este ambiente será utilizado para trabalhar com bibliotecas geoespaciais e científicas
-conda create -n osgeo python=3.10 -y
+conda create -n geowri python=3.12 -y
 
-# Ativar o ambiente 'osgeo'
-conda activate osgeo
+# Ativar o ambiente 'geowri'
+conda activate geowri
 
 # Instalar uma lista extensa de pacotes geoespaciais e científicos via conda-forge
 # Esses pacotes cobrem diversas funcionalidades, como processamento de dados raster, machine learning, otimização, entre outros.
@@ -52,7 +52,7 @@ conda clean --all -y
 python -c "import geopandas, rasterio, gdal, numpy; print('Ambiente configurado com sucesso!')"
 
 # Instruções para o usuário:
-# - Para ativar o ambiente 'osgeo' no futuro, use o comando: 'conda activate osgeo'
+# - Para ativar o ambiente 'geowri' no futuro, use o comando: 'conda activate geowri'
 # - Para desativar o ambiente, use: 'conda deactivate'
 
 # Fim do script
