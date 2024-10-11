@@ -5,7 +5,7 @@ from osgeo import gdal
 # Habilitar exceções no GDAL para tratar erros adequadamente
 gdal.UseExceptions()
 
-def verificar_metadados_raster(raster_path):
+def metadata_raster(raster_path):
     """
     Verifica e exibe os metadados de um arquivo raster, incluindo projeção, dimensões,
     número de bandas, tamanho de pixel, extensão e estatísticas das bandas.
@@ -90,7 +90,7 @@ def main():
 
     raster_path = sys.argv[1]
     try:
-        verificar_metadados_raster(raster_path)
+        metadata_raster(raster_path)
     except ValueError as e:
         print(e)
 
