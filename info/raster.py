@@ -5,15 +5,10 @@ from osgeo import gdal
 # Habilitar exceções no GDAL para tratar erros adequadamente
 gdal.UseExceptions()
 
-def verificar_projecao_raster(raster_path):
+def verificar_metadados_raster(raster_path):
     """
-    Verifica a projeção e exibe um resumo das informações de um arquivo raster.
-
-    Parâmetros:
-    raster_path (str): Caminho para o arquivo raster (.tif, .img, etc.).
-
-    Retorno:
-    None. Exibe o resultado e um resumo formatado e explicativo.
+    Verifica e exibe os metadados de um arquivo raster, incluindo projeção, dimensões,
+    número de bandas, tamanho de pixel, extensão e estatísticas das bandas.
     """
     # Abrir o arquivo raster
     dataset = gdal.Open(raster_path)
@@ -32,13 +27,22 @@ def verificar_projecao_raster(raster_path):
     # Número de bandas
     num_bands = dataset.RasterCount
     print(f"Número de Bandas: {num_bands}")
+    # Print details of each band
+    band_names = []
+    for i in range(1, num_bands + 1):
+        band = dataset.GetRasterBand(i)
+        description = band.GetDescription() if band.GetDescription() else f"Band {i}"
+        band_names.append(description)
+        print(f"Band {i} - Description: {description}, Size: {band.XSize} x {band.YSize}")
 
-    # Tamanho de pixel
+    # Obter a geotransformação do raster
     geotransform = dataset.GetGeoTransform()
-    if geotransform:
-        pixel_size_x = geotransform[1]
-        pixel_size_y = geotransform[5]
-        print(f"Tamanho de Pixel: {pixel_size_x} x {abs(pixel_size_y)}")
+
+    # Verificar se a geotransformação está presente
+    if geotransform is not None:
+        pixel_size_x = geotransform[1]  # Tamanho do pixel na direção X
+        pixel_size_y = geotransform[5]  # Tamanho do pixel na direção Y
+        print(f"Tamanho de Pixel (resolução): {pixel_size_x} x {abs(pixel_size_y)}")
 
         # Extensão (Bounding Box)
         origin_x = geotransform[0]
@@ -47,11 +51,11 @@ def verificar_projecao_raster(raster_path):
         extent_y = origin_y + (rows * pixel_size_y)
         print(f"Extensão (Bounding Box): ({origin_x:.6f}, {origin_y:.6f}) - ({extent_x:.6f}, {extent_y:.6f})")
     else:
-        print("Não foi possível obter o geotransform.")
+        print("Não foi possível obter a geotransformação do raster.")
 
     # Projeção (WKT)
     projection = dataset.GetProjectionRef()
-    if projection:
+    if projection is not None:
         print(f"Projeção (WKT):\n{projection}")
     else:
         print("O arquivo raster não possui uma projeção definida.")
@@ -60,43 +64,35 @@ def verificar_projecao_raster(raster_path):
     for i in range(1, num_bands + 1):
         band = dataset.GetRasterBand(i)
         min_val, max_val, mean, stddev = band.GetStatistics(True, True)
+        nodata_value = band.GetNoDataValue()
+
         print(f"\nResumo da Banda {i}:")
-        print(f"  Valor Mínimo: {min_val}")
-        print(f"  Valor Máximo: {max_val}")
-        print(f"  Média: {mean}")
-        print(f"  Desvio Padrão: {stddev}")
+        print(f"  Valor Mínimo: {min_val:.4f}")
+        print(f"  Valor Máximo: {max_val:.4f}")
+        print(f"  Média: {mean:.4f}")
+        print(f"  Desvio Padrão: {stddev:.4f}")
         print(f"  Tipo de Dado: {gdal.GetDataTypeName(band.DataType)}")
+
+        # Exibir valor de NoData se existir
+        if nodata_value is not None:
+            print(f"  Valor NoData: {nodata_value}")
+        else:
+            print("  Valor NoData: Não Definido")
 
     # Fechar o dataset
     dataset = None
 
-    # Resumo explicativo
-    print("\nResumo Explicativo:")
-    print(f"O raster `{raster_path}` possui as seguintes características:")
-    print(f"- Ele é composto por {cols} colunas e {rows} linhas, resultando em uma imagem raster de {cols * rows} pixels.")
-    print(f"- O raster tem {num_bands} banda(s), que representam diferentes tipos de dados, como cor, intensidade ou outras variáveis.")
-    if geotransform:
-        print(f"- O tamanho de cada pixel é de {pixel_size_x:.2f} unidades na direção horizontal e {abs(pixel_size_y):.2f} unidades na direção vertical.")
-        print(f"- A extensão geográfica do raster vai de ({origin_x:.6f}, {origin_y:.6f}) até ({extent_x:.6f}, {extent_y:.6f}), que representa a área coberta pela imagem.")
-    else:
-        print("- Não foi possível determinar a extensão geográfica ou o tamanho de pixel, o que pode indicar que o raster não possui informações geoespaciais bem definidas.")
-    if projection:
-        print(f"- O sistema de projeção usado é o seguinte: {projection[:50]}... (WKT completo disponível na saída acima).")
-    else:
-        print("- O raster não possui um sistema de projeção definido, o que significa que ele pode não estar associado a um sistema de coordenadas geográficas.")
-
 # Função principal para capturar o argumento da linha de comando
 def main():
     if len(sys.argv) != 2:
-        print("Uso correto: python verificar_projecao_raster.py nome_do_raster.tif")
+        print("Uso correto: python verificar_metadados_raster.py nome_do_raster.tif")
         sys.exit(1)
 
     raster_path = sys.argv[1]
     try:
-        verificar_projecao_raster(raster_path)
+        verificar_metadados_raster(raster_path)
     except ValueError as e:
         print(e)
 
 if __name__ == "__main__":
     main()
-
