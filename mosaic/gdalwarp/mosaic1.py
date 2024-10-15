@@ -5,7 +5,7 @@ import glob
 import subprocess
 import os
 import sys
-res = 0.1  # Resolução que você deseja manter (pode ser removida se quiser a resolução original)
+res = 0.1  # Defina a resolução desejada (pode ser removida se quiser a resolução original)
 
 # Função para verificar se o diretório existe
 def verificar_diretorio(raster_folder):
@@ -22,10 +22,10 @@ def listar_arquivos_tif(raster_folder):
         print(f"Lista de arquivos: {demList}")
     return demList
 
-# Função para executar o comando gdalwarp com paralelismo e compressão
+# Função para executar o comando gdalwarp com paralelismo, compressão e resolução
 def executar_gdalwarp(result_folder, demList):
     """
-    Executa o gdalwarp para mosaicar rasters, com paralelismo e compressão.
+    Executa o gdalwarp para mosaicar rasters, com paralelismo, compressão e resolução.
     
     Parâmetros:
     result_folder (str): Caminho para o diretório onde o arquivo de mosaico será salvo.
@@ -34,16 +34,23 @@ def executar_gdalwarp(result_folder, demList):
     Opções no comando:
     -multi: Utiliza múltiplos núcleos do processador.
     -wo: Define o uso de múltiplos núcleos com ALL_CPUS.
+    -tr: Define a resolução de saída (res).
     -co COMPRESS=DEFLATE: Aplica compressão DEFLATE ao arquivo de saída para reduzir o tamanho.
     
     Retorno:
     None. Gera um erro se o gdalwarp falhar, ou imprime uma mensagem de sucesso.
     """
-    # Comando gdalwarp com paralelismo e compressão DEFLATE
+    # Comando gdalwarp com paralelismo, compressão DEFLATE e resolução
     cmd = [
         "gdalwarp", "-multi", "-wo", "NUM_THREADS=ALL_CPUS", "-co", "COMPRESS=DEFLATE", "-r", "near", 
         "-overwrite"
-    ] + demList + [os.path.join(result_folder, "mosaic.tif")]
+    ]
+
+    # Adiciona o parâmetro de resolução (-tr) se a variável 'res' estiver definida
+    if res:
+        cmd += ["-tr", str(res), str(res)]
+    
+    cmd += demList + [os.path.join(result_folder, "mosaic.tif")]
     
     # Executar o comando
     result = subprocess.call(cmd)
