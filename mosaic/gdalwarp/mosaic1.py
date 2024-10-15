@@ -5,7 +5,9 @@ import glob
 import subprocess
 import os
 import sys
-res = 0.1  # Defina a resolução desejada (pode ser removida se quiser a resolução original)
+
+res = None
+#res = 0.0002694945852358564
 
 # Função para verificar se o diretório existe
 def verificar_diretorio(raster_folder):
