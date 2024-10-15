@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# Script Modificado para Usar a Resolução dos Rasters de Entrada
 from osgeo import gdal
 import glob
 import os
