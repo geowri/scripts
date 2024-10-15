@@ -42,8 +42,11 @@ def salvar_areas_em_csv(areas_manchas, output_csv):
     - output_csv: Caminho do arquivo CSV de saída.
     """
     df = pd.DataFrame(columns=["Mancha", "Area_m2", "Area_ha"])
-    for mancha, (area_m2, area_ha) in areas_manchas.items():
-        df = df.append({"Mancha": mancha, "Area_m2": area_m2, "Area_ha": area_ha}, ignore_index=True)
+    
+    # Use pd.concat corretamente
+    df = pd.concat([pd.DataFrame({"Mancha": [mancha], "Area_m2": [area_m2], "Area_ha": [area_ha]})
+                    for mancha, (area_m2, area_ha) in areas_manchas.items()],
+                   ignore_index=True)
     
     df.to_csv(output_csv, index=False)
     print(f"Arquivo CSV salvo em: {output_csv}")
@@ -72,3 +75,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
