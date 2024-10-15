@@ -6,8 +6,8 @@ import subprocess
 import os
 import sys
 
-# Defina a resolução desejada (ou mantenha a resolução original do raster removendo o uso de 'res')
-res = 0.0002694945852358564  # Exemplo de resolução em graus (pode ajustar conforme sua necessidade)
+res = None
+#res = 0.0002694945852358564
 
 # Função para verificar se o diretório existe
 def verificar_diretorio(raster_folder):
