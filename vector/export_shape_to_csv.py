@@ -2,7 +2,7 @@ import geopandas as gpd
 import argparse
 import sys
 
-def exportar_shapefile_para_csv(shapefile_path, output_csv, colunas, linhas, incluir_geometry):
+def exportar_shapefile_para_csv(shapefile_path, output_csv, colunas, atributo, valores, incluir_geometry):
     try:
         # Carregar o shapefile
         gdf = gpd.read_file(shapefile_path)
@@ -11,13 +11,17 @@ def exportar_shapefile_para_csv(shapefile_path, output_csv, colunas, linhas, inc
         print("Colunas disponíveis no shapefile:")
         print(gdf.columns)
 
-        # Se linhas forem especificadas, selecionar apenas essas linhas
-        if linhas:
-            max_index = len(gdf) - 1
-            if any([linha > max_index or linha < 0 for linha in linhas]):
-                print(f"Erro: Os índices de linhas devem estar entre 0 e {max_index}.")
+        # Se um atributo e valores forem especificados, filtrar com base neles
+        if atributo and valores:
+            valores = valores.split()  # Converter os valores em uma lista
+            if atributo in gdf.columns:
+                gdf = gdf[gdf[atributo].isin(valores)]
+                if gdf.empty:
+                    print(f"Nenhuma linha encontrada com {atributo} nos valores {valores}.")
+                    return
+            else:
+                print(f"Erro: O atributo '{atributo}' não foi encontrado no shapefile.")
                 return
-            gdf = gdf.iloc[linhas]
 
         # Verificar se as colunas especificadas existem no shapefile
         if colunas:
@@ -30,7 +34,7 @@ def exportar_shapefile_para_csv(shapefile_path, output_csv, colunas, linhas, inc
         else:
             # Se não forem especificadas colunas, selecionar todas (exceto geometry se não solicitado)
             colunas_existentes = list(gdf.columns)
-            if not incluir_geometry:
+            if not incluir_geometry and 'geometry' in colunas_existentes:
                 colunas_existentes.remove('geometry')
 
         # Exportar as colunas selecionadas (com ou sem a geometria) para CSV
@@ -49,22 +53,22 @@ def exportar_shapefile_para_csv(shapefile_path, output_csv, colunas, linhas, inc
 def main():
     # Configuração dos argumentos da linha de comando
     parser = argparse.ArgumentParser(
-        description="Exporta atributos de um shapefile para um arquivo CSV, com a opção de especificar linhas e incluir/excluir a coluna geometry.\n",
-        usage="%(prog)s shapefile_path output_csv [--colunas COLUNA [COLUNA ...]] [--linhas LINHAS [LINHAS ...]] [--incluir_geometry]"
+        description="Exporta atributos de um shapefile para um arquivo CSV, com a opção de filtrar por atributo, incluir/excluir a coluna geometry.\n",
+        usage="%(prog)s shapefile_path output_csv [--colunas COLUNA [COLUNA ...]] [--atributo ATRIBUTO] [--valores VALORES] [--incluir_geometry]"
     )
     parser.add_argument('shapefile_path', type=str, help="Caminho do shapefile a ser processado")
     parser.add_argument('output_csv', type=str, help="Caminho do arquivo CSV para salvar os resultados")
     parser.add_argument('--colunas', nargs='+', help="Lista de colunas a serem exportadas. Se não fornecida, exporta todas exceto 'geometry'.")
-    parser.add_argument('--linhas', nargs='+', type=int, help="Índices das linhas a serem exportadas (opcional)")
+    parser.add_argument('--atributo', type=str, help="Atributo a ser usado para selecionar as linhas (opcional)")
+    parser.add_argument('--valores', type=str, help="Lista de valores do atributo para filtrar as linhas, separados por espaços (opcional)")
     parser.add_argument('--incluir_geometry', action='store_true', help="Incluir a coluna geometry no CSV exportado.")
 
     # Parse dos argumentos
     args = parser.parse_args()
 
     # Chamar a função de exportação
-    exportar_shapefile_para_csv(args.shapefile_path, args.output_csv, args.colunas, args.linhas, args.incluir_geometry)
+    exportar_shapefile_para_csv(args.shapefile_path, args.output_csv, args.colunas, args.atributo, args.valores, args.incluir_geometry)
 
 if __name__ == "__main__":
     main()
-
 
