@@ -1,0 +1,2 @@
+ogr2ogr -f "ESRI Shapefile" UCs_Legal_Amazon_corrigido.shp UCs_Legal_Amazon.shp -makevalid
+gdalwarp -cutline seu_shapefile.shp -crop_to_cutline -dstalpha -dstnodata 0 -of GTiff seu_raster.tif raster_saida.tif
